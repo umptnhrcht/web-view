@@ -1,0 +1,84 @@
+import { VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
+import "./App.css";
+import { vscode } from "./vscode";
+import { VSCodeBadge } from "@vscode/webview-ui-toolkit/react";
+import { GuidedWizard } from './components/GuidedWizard';
+
+import React, { useState } from "react";
+import TrainRow from "./components/TrainRow";
+
+
+
+function App() {
+	function handleHowdyClick() {
+		vscode.postMessage({
+			command: "hello",
+			text: "Hey there partner! 🤠",
+		});
+	}
+
+	const [leftWidth, setLeftWidth] = React.useState(30); // percent
+	const dragging = React.useRef(false);
+
+	function handleMouseDown(_e: React.MouseEvent<HTMLDivElement>) {
+		dragging.current = true;
+		document.body.style.cursor = 'col-resize';
+	}
+
+	function handleMouseUp(_e: MouseEvent) {
+		dragging.current = false;
+		document.body.style.cursor = '';
+	}
+
+	function handleMouseMove(e: MouseEvent) {
+		if (!dragging.current) return;
+		const screenWidth = window.innerWidth;
+		let newLeftWidth = (e.clientX / screenWidth) * 100;
+		// Ensure both columns have at least 30% width
+		newLeftWidth = Math.max(30, Math.min(70, newLeftWidth));
+		setLeftWidth(newLeftWidth);
+	}
+
+	React.useEffect(() => {
+		document.addEventListener('mousemove', handleMouseMove);
+		document.addEventListener('mouseup', handleMouseUp);
+		return () => {
+			document.removeEventListener('mousemove', handleMouseMove);
+			document.removeEventListener('mouseup', handleMouseUp);
+		};
+	}, []);
+
+	return (
+		<div className="flex flex-col md:flex-row min-h-screen" style={{ position: 'relative' }}>
+			{/* Left Column */}
+			<div
+				className="bg-gray-100 p-6"
+				style={{ width: `${leftWidth}%`, minWidth: '30%', maxWidth: '70%' }}
+			>
+				<GuidedWizard />
+			</div>
+			{/* Draggable Separator */}
+			<div
+				style={{
+					width: 8,
+					cursor: 'col-resize',
+					background: '#e5e7eb',
+					zIndex: 10,
+					position: 'relative',
+				}}
+				onMouseDown={handleMouseDown}
+			/>
+			{/* Right Column */}
+			<div
+				className="bg-white p-6"
+				style={{ width: `calc(100% - ${leftWidth}% - 8px)`, minWidth: '30%', maxWidth: '70%' }}
+			>
+				Right column
+				<VSCodeBadge />
+				<TrainRow></TrainRow>
+			</div>
+		</div>
+	);
+}
+
+export default App;

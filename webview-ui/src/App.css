@@ -1,3 +1,19 @@
+/* Success icon color override */
+.success-icon {
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+  /* Green color */
+  filter: invert(38%) sepia(94%) saturate(469%) hue-rotate(87deg) brightness(92%) contrast(92%);
+}
+
+.warning-icon {
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+  /* Amber/Orange warning color */
+  filter: invert(62%) sepia(98%) saturate(1800%) hue-rotate(-20deg) brightness(105%) contrast(105%);
+}
 /* #root {
   max-width: 1280px;
   margin: 0 auto;

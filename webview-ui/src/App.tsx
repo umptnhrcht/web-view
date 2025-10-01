@@ -1,10 +1,8 @@
-import { VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import "./App.css";
-import { vscode } from "./vscode";
-import { VSCodeBadge } from "@vscode/webview-ui-toolkit/react";
 import { GuidedWizard } from './components/GuidedWizard';
+import { vscode } from "./vscode";
 
-import React, { useState } from "react";
+import React from "react";
 import TrainRow from "./components/TrainRow";
 
 
@@ -74,7 +72,6 @@ function App() {
 				style={{ width: `calc(100% - ${leftWidth}% - 8px)`, minWidth: '30%', maxWidth: '70%' }}
 			>
 				Right column
-				<VSCodeBadge />
 				<TrainRow></TrainRow>
 			</div>
 		</div>

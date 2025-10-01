@@ -3,8 +3,6 @@ import { GuidedWizard, trainsList } from './components/GuidedWizard';
 
 import React from "react";
 
-
-
 function App() {
 	const [leftWidth, setLeftWidth] = React.useState(30); // percent
 	const dragging = React.useRef(false);
@@ -39,6 +37,8 @@ function App() {
 	}, []);
 
 	const StepComponent = trainsList[selectedStep].component;
+	// Example usage:
+	// GlobalEventHandler.register('some-id', (payload) => { ... });
 	return (
 		<div className="flex flex-col md:flex-row min-h-screen" style={{ position: 'relative' }}>
 			{/* Left Column */}
@@ -64,7 +64,7 @@ function App() {
 				className="bg-white p-6"
 				style={{ width: `calc(100% - ${leftWidth}% - 8px)`, minWidth: '30%', maxWidth: '70%' }}
 			>
-				<StepComponent />
+				<StepComponent selectedStep={selectedStep} setSelectedStep={setSelectedStep} />
 			</div>
 		</div>
 	);

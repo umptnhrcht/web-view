@@ -1,5 +1,6 @@
 import { Disposable, Webview, WebviewPanel, window, Uri, ViewColumn } from "vscode";
 import { getUri, getNonce } from "../utilities";
+import { RedisConnector } from "../redis/connection";
 
 /**
  * This class manages the state and behavior of HelloWorld webview panels.
@@ -12,101 +13,102 @@ import { getUri, getNonce } from "../utilities";
  * - Setting message listeners so data can be passed between the webview and extension
  */
 export class HelloWorldPanel {
-  public static currentPanel: HelloWorldPanel | undefined;
-  private readonly _panel: WebviewPanel;
-  private _disposables: Disposable[] = [];
+	public static currentPanel: HelloWorldPanel | undefined;
+	private readonly _panel: WebviewPanel;
+	private _disposables: Disposable[] = [];
 
-  /**
-   * The HelloWorldPanel class private constructor (called only from the render method).
-   *
-   * @param panel A reference to the webview panel
-   * @param extensionUri The URI of the directory containing the extension
-   */
-  private constructor(panel: WebviewPanel, extensionUri: Uri) {
-    this._panel = panel;
+	/**
+	 * The HelloWorldPanel class private constructor (called only from the render method).
+	 *
+	 * @param panel A reference to the webview panel
+	 * @param extensionUri The URI of the directory containing the extension
+	 */
+	private constructor(panel: WebviewPanel, extensionUri: Uri) {
+		this._panel = panel;
 
-    // Set an event listener to listen for when the panel is disposed (i.e. when the user closes
-    // the panel or when the panel is closed programmatically)
-    this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
+		// Set an event listener to listen for when the panel is disposed (i.e. when the user closes
+		// the panel or when the panel is closed programmatically)
+		this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
 
-    // Set the HTML content for the webview panel
-    this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri);
+		// Set the HTML content for the webview panel
+		this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri);
 
-    // Set an event listener to listen for messages passed from the webview context
-    this._setWebviewMessageListener(this._panel.webview);
-  }
+		// Set an event listener to listen for messages passed from the webview context
+		this._setWebviewMessageListener(this._panel.webview);
+	}
 
-  /**
-   * Renders the current webview panel if it exists otherwise a new webview panel
-   * will be created and displayed.
-   *
-   * @param extensionUri The URI of the directory containing the extension.
-   */
-  public static render(extensionUri: Uri) {
-    if (HelloWorldPanel.currentPanel) {
-      // If the webview panel already exists reveal it
-      HelloWorldPanel.currentPanel._panel.reveal(ViewColumn.One);
-    } else {
-      // If a webview panel does not already exist create and show a new one
-      const panel = window.createWebviewPanel(
-        // Panel view type
-        "showHelloWorld",
-        // Panel title
-        "Hello There!!!!",
-        // The editor column the panel should be displayed in
-        ViewColumn.One,
-        // Extra panel configurations
-        {
-          // Enable JavaScript in the webview
-          enableScripts: true,
-          // Restrict the webview to only load resources from the `out` and `webview-ui/build` directories
-          localResourceRoots: [Uri.joinPath(extensionUri, "out"), Uri.joinPath(extensionUri, "webview-ui/build")],
-        }
-      );
+	/**
+	 * Renders the current webview panel if it exists otherwise a new webview panel
+	 * will be created and displayed.
+	 *
+	 * @param extensionUri The URI of the directory containing the extension.
+	 */
+	public static render(extensionUri: Uri) {
+		if (HelloWorldPanel.currentPanel) {
+			// If the webview panel already exists reveal it
+			HelloWorldPanel.currentPanel._panel.reveal(ViewColumn.One);
+		} else {
+			// If a webview panel does not already exist create and show a new one
+			const panel = window.createWebviewPanel(
+				// Panel view type
+				"showHelloWorld",
+				// Panel title
+				"Hello There!!!!",
+				// The editor column the panel should be displayed in
+				ViewColumn.One,
+				// Extra panel configurations
+				{
+					// Enable JavaScript in the webview
+					enableScripts: true,
+					// Restrict the webview to only load resources from the `out` and `webview-ui/build` directories
+					localResourceRoots: [Uri.joinPath(extensionUri, "out"), Uri.joinPath(extensionUri, "webview-ui/build"), Uri.joinPath(extensionUri, "webview-ui/src/assets")],
+				}
+			);
 
-      HelloWorldPanel.currentPanel = new HelloWorldPanel(panel, extensionUri);
-    }
-  }
+			HelloWorldPanel.currentPanel = new HelloWorldPanel(panel, extensionUri);
+		}
+	}
 
-  /**
-   * Cleans up and disposes of webview resources when the webview panel is closed.
-   */
-  public dispose() {
-    HelloWorldPanel.currentPanel = undefined;
+	/**
+	 * Cleans up and disposes of webview resources when the webview panel is closed.
+	 */
+	public dispose() {
+		HelloWorldPanel.currentPanel = undefined;
 
-    // Dispose of the current webview panel
-    this._panel.dispose();
+		// Dispose of the current webview panel
+		this._panel.dispose();
 
-    // Dispose of all disposables (i.e. commands) for the current webview panel
-    while (this._disposables.length) {
-      const disposable = this._disposables.pop();
-      if (disposable) {
-        disposable.dispose();
-      }
-    }
-  }
+		// Dispose of all disposables (i.e. commands) for the current webview panel
+		while (this._disposables.length) {
+			const disposable = this._disposables.pop();
+			if (disposable) {
+				disposable.dispose();
+			}
+		}
+	}
 
-  /**
-   * Defines and returns the HTML that should be rendered within the webview panel.
-   *
-   * @remarks This is also the place where references to the React webview build files
-   * are created and inserted into the webview HTML.
-   *
-   * @param webview A reference to the extension webview
-   * @param extensionUri The URI of the directory containing the extension
-   * @returns A template string literal containing the HTML that should be
-   * rendered within the webview panel
-   */
-  private _getWebviewContent(webview: Webview, extensionUri: Uri) {
-    // The CSS file from the React build output
-    const stylesUri = getUri(webview, extensionUri, ["webview-ui", "build", "assets", "index.css"]);
-    // The JS file from the React build output
-    const scriptUri = getUri(webview, extensionUri, ["webview-ui", "build", "assets", "index.js"]);
+	/**
+	 * Defines and returns the HTML that should be rendered within the webview panel.
+	 *
+	 * @remarks This is also the place where references to the React webview build files
+	 * are created and inserted into the webview HTML.
+	 *
+	 * @param webview A reference to the extension webview
+	 * @param extensionUri The URI of the directory containing the extension
+	 * @returns A template string literal containing the HTML that should be
+	 * rendered within the webview panel
+	 */
+	private _getWebviewContent(webview: Webview, extensionUri: Uri) {
+		// The CSS file from the React build output
+		const stylesUri = getUri(webview, extensionUri, ["webview-ui", "build", "assets", "index.css"]);
+		// The JS file from the React build output
+		const scriptUri = getUri(webview, extensionUri, ["webview-ui", "build", "assets", "index.js"]);
 
-    const nonce = getNonce();
+		const nonce = getNonce();
+		console.log(webview.cspSource) 
 
-    // Tip: Install the es6-string-html VS Code extension to enable code highlighting below
-    return /*html*/ `
+		// Tip: Install the es6-string-html VS Code extension to enable code highlighting below
+		return /*html*/ `
       <!DOCTYPE html>
       <html lang="en">
         <head>
@@ -122,36 +124,40 @@ export class HelloWorldPanel {
         </body>
       </html>
     `;
-  }
+	}
 
-  /**
-   * Sets up an event listener to listen for messages passed from the webview context and
-   * executes code based on the message that is recieved.
-   *
-   * @param webview A reference to the extension webview
-   * @param context A reference to the extension context
-   */
-  private _setWebviewMessageListener(webview: Webview) {
-    webview.onDidReceiveMessage(
-      (message: any) => {
-        const command = message.command;
-        const text = message.text;
+	/**
+	 * Sets up an event listener to listen for messages passed from the webview context and
+	 * executes code based on the message that is recieved.
+	 *
+	 * @param webview A reference to the extension webview
+	 * @param context A reference to the extension context
+	 */
+	private _setWebviewMessageListener(webview: Webview) {
+		webview.onDidReceiveMessage(
+			async (message: any) => {
+				const command = message.command;
+				const text = message.text;
+				const id = message.id;
 
-        switch (command) {
-          case "hello":
-            console.log('hello');
-            window.showInformationMessage(text);
-            return;
-          case "submitConnectionForm":
-            console.log('Received connection form data:', message.data);
-            window.showInformationMessage('Connection form submitted!');
-            // You can handle the form data here (e.g., connect to a server)
-            return;
-          // Add more switch case statements here as more webview message commands
-        }
-      },
-      undefined,
-      this._disposables
-    );
-  }
+				switch (command) {
+					case "hello":
+						console.log('hello');
+						window.showInformationMessage(text);
+						return;
+					case "submitConnectionForm":
+						console.log('Received connection form data11:', message.data);
+						const status = (await RedisConnector.create(message.data)).ping()
+						console.log(status);
+						window.showInformationMessage('Connection form submitted!');
+						// You can handle the form data here (e.g., connect to a server)
+						webview.postMessage({id, status});
+						return status;
+					// Add more switch case statements here as more webview message commands
+				}
+			},
+			undefined,
+			this._disposables
+		);
+	}
 }

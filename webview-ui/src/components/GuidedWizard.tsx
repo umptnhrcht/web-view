@@ -10,7 +10,7 @@ const trains = [
 	{ name: "Connection details", progress: 10, status: TrainStatus.InProgress, component: ConnectionForm },
 	{ name: "Data details", progress: 60, status: TrainStatus.Unvisited, component: DataDetails },
 	{ name: "Index details", progress: 100, status: TrainStatus.Unvisited, component: IndexDetails },
-	{ name: "Query settings", progress: 100, status: TrainStatus.Unvisited, component: QuerySettings }
+	{ name: "Query settings", progress: 100, status: TrainStatus.Finished, component: QuerySettings }
 ];
 
 
@@ -19,7 +19,7 @@ interface GuidedWizardProps {
 	onStepSelect: (idx: number) => void;
 }
 
-export const GuidedWizard: React.FC<GuidedWizardProps> = ({ selectedStep, onStepSelect }) => {
+export const GuidedWizard: React.FC<GuidedWizardProps> & { completeStepAndNext: (selectedStep: number, onStepSelect: (idx: number) => void) => void } = ({ selectedStep, onStepSelect }) => {
 	return (
 		<div className="bg-white rounded-lg shadow p-6 w-full">
 			<div className="flex">
@@ -39,5 +39,13 @@ export const GuidedWizard: React.FC<GuidedWizardProps> = ({ selectedStep, onStep
 			</div>
 		</div>
 	);
+};
+
+GuidedWizard.completeStepAndNext = (selectedStep: number, onStepSelect: (idx: number) => void) => {
+	trains[selectedStep].status = TrainStatus.Finished;
+	if (selectedStep + 1 < trains.length) {
+		trains[selectedStep + 1].status = TrainStatus.InProgress;
+		onStepSelect(selectedStep + 1);
+	}
 };
 export const trainsList = trains;

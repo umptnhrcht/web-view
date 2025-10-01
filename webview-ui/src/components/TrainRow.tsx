@@ -1,4 +1,5 @@
 import React from "react";
+import "../css/TrainRow.css";
 import ProgressRingWithStyle from "./ProgressRing";
 import successIcon from "../assets/success.svg";
 import warningIcon from "../assets/warning.svg";
@@ -38,30 +39,19 @@ const SuccessIcon = () => (
 
 const TrainRow: React.FC<TrainRowProps> = ({status = TrainStatus.Uninitialized, stepLabel, style, onClick}) => {
 	const isClickable = status !== TrainStatus.Uninitialized && status !== TrainStatus.Unvisited;
+	const rowClass = `train-row${isClickable ? ' clickable' : ' disabled'}`;
 	return (
 		<div
-			style={{
-				display: 'flex',
-				alignItems: 'center',
-				justifyContent: 'space-between',
-				padding: '12px 20px',
-				background: '#f3f4f6',
-				borderRadius: 8,
-				boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
-				cursor: isClickable ? 'pointer' : 'default',
-				opacity: isClickable ? 1 : 0.5,
-				filter: !isClickable ? 'grayscale(0.7)' : 'none',
-				transition: 'box-shadow 0.2s, filter 0.2s',
-				...style
-			}}
+			className={rowClass}
+			style={style}
 			onClick={isClickable ? onClick : undefined}
 			tabIndex={isClickable ? 0 : -1}
 			role={isClickable ? 'button' : undefined}
 			aria-disabled={!isClickable}
 		>
-			<div style={{ display: 'flex', alignItems: 'center' }}>
+			<div className="train-row-label-container">
 				<TrainIcon />
-				<span style={{ marginLeft: 12, fontWeight: 500, fontSize: 16, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{stepLabel}</span>
+				<span className="train-row-label">{stepLabel}</span>
 			</div>
 			{/* Status indicator */}
 			{status === TrainStatus.Unvisited && null}

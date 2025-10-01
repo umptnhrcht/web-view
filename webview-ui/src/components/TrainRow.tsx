@@ -1,4 +1,3 @@
-import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import React from "react";
 import ProgressRingWithStyle from "./ProgressRing";
 import successIcon from "../assets/success.svg";
@@ -15,6 +14,7 @@ const TrainIcon = () => (
 
 
 export enum TrainStatus {
+	Unvisited = 'unvisited',
 	Uninitialized = 'uninitialized',
 	InProgress = 'in progress',
 	Finished = 'finished',
@@ -23,19 +23,10 @@ export enum TrainStatus {
 interface TrainRowProps {
 	progress?: number; // 0-100
 	status?: TrainStatus;
+	stepLabel?: string;
+	style?: React.CSSProperties;
+	onClick?: () => void;
 }
-
-const statusColors: Record<TrainStatus, string> = {
-	[TrainStatus.Uninitialized]: '#d1d5db', // gray
-	[TrainStatus.InProgress]: '#2563eb', // blue
-	[TrainStatus.Finished]: '#22c55e', // green
-};
-
-const statusLabels: Record<TrainStatus, string> = {
-	[TrainStatus.Uninitialized]: 'Uninitialized',
-	[TrainStatus.InProgress]: 'In Progress',
-	[TrainStatus.Finished]: 'Finished',
-};
 
 const WarningIcon = () => (
 	<img src={warningIcon} alt="Warning" className="warning-icon" />
@@ -45,22 +36,35 @@ const SuccessIcon = () => (
 	<img src={successIcon} alt="Success" className="success-icon" />
 );
 
-const TrainRow: React.FC<TrainRowProps> = ({ progress = 50, status = TrainStatus.Uninitialized }) => {
+const TrainRow: React.FC<TrainRowProps> = ({status = TrainStatus.Uninitialized, stepLabel, style, onClick}) => {
+	const isClickable = status !== TrainStatus.Uninitialized && status !== TrainStatus.Unvisited;
 	return (
-		<div style={{
-			display: 'flex',
-			alignItems: 'center',
-			justifyContent: 'space-between',
-			padding: '12px 20px',
-			background: '#f3f4f6',
-			borderRadius: 8,
-			boxShadow: '0 1px 4px rgba(0,0,0,0.04)'
-		}}>
+		<div
+			style={{
+				display: 'flex',
+				alignItems: 'center',
+				justifyContent: 'space-between',
+				padding: '12px 20px',
+				background: '#f3f4f6',
+				borderRadius: 8,
+				boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+				cursor: isClickable ? 'pointer' : 'default',
+				opacity: isClickable ? 1 : 0.5,
+				filter: !isClickable ? 'grayscale(0.7)' : 'none',
+				transition: 'box-shadow 0.2s, filter 0.2s',
+				...style
+			}}
+			onClick={isClickable ? onClick : undefined}
+			tabIndex={isClickable ? 0 : -1}
+			role={isClickable ? 'button' : undefined}
+			aria-disabled={!isClickable}
+		>
 			<div style={{ display: 'flex', alignItems: 'center' }}>
 				<TrainIcon />
-				<span style={{ marginLeft: 12, fontWeight: 500, fontSize: 16, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Train Name</span>
+				<span style={{ marginLeft: 12, fontWeight: 500, fontSize: 16, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{stepLabel}</span>
 			</div>
 			{/* Status indicator */}
+			{status === TrainStatus.Unvisited && null}
 			{status === TrainStatus.Uninitialized && <WarningIcon />}
 			{status === TrainStatus.InProgress && <ProgressRingWithStyle/>}
 			{status === TrainStatus.Finished && <SuccessIcon />}

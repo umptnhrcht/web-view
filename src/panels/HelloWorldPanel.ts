@@ -140,11 +140,14 @@ export class HelloWorldPanel {
         switch (command) {
           case "hello":
             console.log('hello');
-            // Code that should run in response to the hello message command
             window.showInformationMessage(text);
             return;
+          case "submitConnectionForm":
+            console.log('Received connection form data:', message.data);
+            window.showInformationMessage('Connection form submitted!');
+            // You can handle the form data here (e.g., connect to a server)
+            return;
           // Add more switch case statements here as more webview message commands
-          // are created within the webview context (i.e. inside media/main.js)
         }
       },
       undefined,

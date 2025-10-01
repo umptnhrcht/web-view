@@ -1,22 +1,14 @@
 import "./App.css";
-import { GuidedWizard } from './components/GuidedWizard';
-import { vscode } from "./vscode";
+import { GuidedWizard, trainsList } from './components/GuidedWizard';
 
 import React from "react";
-import TrainRow from "./components/TrainRow";
 
 
 
 function App() {
-	function handleHowdyClick() {
-		vscode.postMessage({
-			command: "hello",
-			text: "Hey there partner! 🤠",
-		});
-	}
-
 	const [leftWidth, setLeftWidth] = React.useState(30); // percent
 	const dragging = React.useRef(false);
+	const [selectedStep, setSelectedStep] = React.useState(0);
 
 	function handleMouseDown(_e: React.MouseEvent<HTMLDivElement>) {
 		dragging.current = true;
@@ -46,6 +38,7 @@ function App() {
 		};
 	}, []);
 
+	const StepComponent = trainsList[selectedStep].component;
 	return (
 		<div className="flex flex-col md:flex-row min-h-screen" style={{ position: 'relative' }}>
 			{/* Left Column */}
@@ -53,7 +46,7 @@ function App() {
 				className="bg-gray-100 p-6"
 				style={{ width: `${leftWidth}%`, minWidth: '30%', maxWidth: '70%' }}
 			>
-				<GuidedWizard />
+				<GuidedWizard selectedStep={selectedStep} onStepSelect={setSelectedStep} />
 			</div>
 			{/* Draggable Separator */}
 			<div
@@ -71,8 +64,7 @@ function App() {
 				className="bg-white p-6"
 				style={{ width: `calc(100% - ${leftWidth}% - 8px)`, minWidth: '30%', maxWidth: '70%' }}
 			>
-				Right column
-				<TrainRow></TrainRow>
+				<StepComponent />
 			</div>
 		</div>
 	);

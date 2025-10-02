@@ -1,13 +1,7 @@
 import React, { useState } from "react";
 import { nanoid } from "nanoid";
-import { vscode } from "../vscode";
-import GlobalEventHandler from "../GlobalEventHandler";
-
-interface ConnectionFormProps {
-	onSubmit?: (details: { host: string; port: string; user: string; password: string }) => void;
-	selectedStep: number;
-	setSelectedStep: (idx: number) => void;
-}
+import { completeStepAndNext, type ConnectionFormProps } from "./GuidedWizard";
+import { JSON_HEADERS, PING_REDIS } from "../constants/constants";
 
 interface RedisConnectiondetails {
 	mode: 'connectString' | 'hostPort';
@@ -18,8 +12,6 @@ interface RedisConnectiondetails {
 	connectString: string;
 }
 
-import { GuidedWizard } from "./GuidedWizard";
-
 export const ConnectionForm: React.FC<ConnectionFormProps> = ({ onSubmit, selectedStep, setSelectedStep }) => {
 	const [mode, setMode] = useState<RedisConnectiondetails['mode']>('hostPort');
 	const [host, setHost] = useState("");
@@ -28,7 +20,7 @@ export const ConnectionForm: React.FC<ConnectionFormProps> = ({ onSubmit, select
 	const [password, setPassword] = useState("");
 	const [connectString, setConnectString] = useState("");
 
-	function handleSubmit(e: React.FormEvent) {
+	async function handleSubmit(e: React.FormEvent) {
 		e.preventDefault();
 		const id = nanoid();
 		const formData: RedisConnectiondetails & { id: string } = { host, port, user, password, mode, connectString, id };
@@ -36,14 +28,19 @@ export const ConnectionForm: React.FC<ConnectionFormProps> = ({ onSubmit, select
 		if (onSubmit) {
 			onSubmit(formData);
 		}
-		// Store callback in global callbacks
-		GlobalEventHandler.getInstance().register(id, (payload: any) => {
-			// handle response here (customize as needed)
-			console.log('Callback for id', id, payload);
-			GuidedWizard.completeStepAndNext(selectedStep, setSelectedStep);
-		});
-		// Send message to VS Code backend
-		vscode.postMessage({ command: "submitConnectionForm", data: formData, id });
+
+		const request = new Request(PING_REDIS,
+			{
+				method: 'POST',
+				headers: JSON_HEADERS,
+				body: JSON.stringify(formData)
+			});
+		const res = await fetch(request);
+		if (res.ok) {
+			completeStepAndNext(selectedStep, setSelectedStep);
+		} else {
+			console.log('fail');
+		}
 	}
 
 	return (

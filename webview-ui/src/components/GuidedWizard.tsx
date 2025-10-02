@@ -1,16 +1,43 @@
+import React from "react";
 import TrainRow from "./TrainRow";
 import { TrainStatus } from "./TrainRow";
 import ConnectionForm from "./ConnectionForm";
 import DataDetails from "./DataDetails";
 import IndexDetails from "./IndexDetails";
-import QuerySettings from "./QuerySettings";
+
+export interface ConnectionFormProps {
+	onSubmit?: (details: { host: string; port: string; user: string; password: string }) => void;
+	selectedStep: number;
+	setSelectedStep: (idx: number) => void;
+}
 
 
-const trains = [
-	{ name: "Connection details", progress: 10, status: TrainStatus.InProgress, component: ConnectionForm },
-	{ name: "Data details", progress: 60, status: TrainStatus.Unvisited, component: DataDetails },
-	{ name: "Index details", progress: 100, status: TrainStatus.Unvisited, component: IndexDetails },
-	{ name: "Query settings", progress: 100, status: TrainStatus.Unvisited, component: QuerySettings }
+
+export const steps = [
+	{
+		name: "Connection details",
+		progress: 10,
+		status: TrainStatus.InProgress,
+		component: (props: { selectedStep: number; setSelectedStep: (idx: number) => void }) => (
+			<ConnectionForm {...props} />
+		)
+	},
+	{
+		name: "Data details",
+		progress: 60,
+		status: TrainStatus.Unvisited,
+		component: (props: { selectedStep: number; setSelectedStep: (idx: number) => void; indexName: string; setIndexName: (name: string) => void }) => (
+			<DataDetails {...props} />
+		)
+	},
+	{
+		name: "Index details",
+		progress: 100,
+		status: TrainStatus.Unvisited,
+		component: (props: { indexName: string }) => (
+			<IndexDetails {...props} />
+		)
+	},
 ];
 
 
@@ -19,13 +46,15 @@ interface GuidedWizardProps {
 	onStepSelect: (idx: number) => void;
 }
 
-export const GuidedWizard: React.FC<GuidedWizardProps> & { completeStepAndNext: (selectedStep: number, onStepSelect: (idx: number) => void) => void } = ({ selectedStep, onStepSelect }) => {
+export const GuidedWizard: React.FC<GuidedWizardProps> = ({ selectedStep, onStepSelect }) => {
+	// const [indexName, setIndexName] = React.useState("hello");
+
 	return (
 		<div className="bg-white rounded-lg shadow p-6 w-full">
 			<div className="flex">
 				{/* Train rows */}
 				<div className="flex flex-col flex-1 space-y-4">
-					{trains.map((train, idx) => (
+					{steps.map((train, idx) => (
 						<TrainRow
 							key={train.name}
 							progress={train.progress}
@@ -41,11 +70,9 @@ export const GuidedWizard: React.FC<GuidedWizardProps> & { completeStepAndNext: 
 	);
 };
 
-GuidedWizard.completeStepAndNext = (selectedStep: number, onStepSelect: (idx: number) => void) => {
-	trains[selectedStep].status = TrainStatus.Finished;
-	if (selectedStep + 1 < trains.length) {
-		trains[selectedStep + 1].status = TrainStatus.InProgress;
+
+export function completeStepAndNext(selectedStep: number, onStepSelect: (idx: number) => void) {
+	if (selectedStep + 1 < 3) {
 		onStepSelect(selectedStep + 1);
 	}
-};
-export const trainsList = trains;
+}

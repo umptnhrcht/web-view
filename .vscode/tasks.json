@@ -15,13 +15,6 @@
 				"kind": "build",
 				"isDefault": true
 			}
-		},
-		{
-			"label": "Run Flask API",
-			"type": "npm",
-			"script": "run-flask",
-			"group": "build",
-			"isBackground": true
 		}
 	]
 }

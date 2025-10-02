@@ -2,6 +2,7 @@ import { Disposable, Webview, WebviewPanel, window, Uri, ViewColumn } from "vsco
 import { getUri, getNonce } from "../utilities";
 import { RedisConnector } from "../redis/connection";
 import { InfetDataType } from "../redis/inferdatatype";
+import { RedisVectorizer } from "../redis/RedisVectorizer";
 
 /**
  * This class manages the state and behavior of HelloWorld webview panels.
@@ -116,7 +117,7 @@ export class HelloWorldPanel {
         <head>
           <meta charset="UTF-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}'; img-src ${webview.cspSource};">
+		  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}'; img-src ${webview.cspSource}; connect-src 'self' http://localhost:5100">
           <link rel="stylesheet" type="text/css" href="${stylesUri}">
           <title>Hello World</title>
         </head>
@@ -167,8 +168,9 @@ export class HelloWorldPanel {
 						break;
 					// Add more switch case statements here as more webview message commands
 					case "vectorize":
-						const data = message.data;
-
+						const results = await RedisVectorizer.vectorize(message.data);
+						webview.postMessage({ id, results});
+						break;
 				}
 			},
 			undefined,

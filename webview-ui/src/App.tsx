@@ -1,5 +1,5 @@
 import "./App.css";
-import { GuidedWizard, trainsList } from './components/GuidedWizard';
+import { GuidedWizard, steps } from './components/GuidedWizard';
 
 import React from "react";
 
@@ -7,6 +7,7 @@ function App() {
 	const [leftWidth, setLeftWidth] = React.useState(30); // percent
 	const dragging = React.useRef(false);
 	const [selectedStep, setSelectedStep] = React.useState(0);
+	const [indexName, setIndexName] = React.useState("");
 
 	function handleMouseDown(_e: React.MouseEvent<HTMLDivElement>) {
 		dragging.current = true;
@@ -36,9 +37,12 @@ function App() {
 		};
 	}, []);
 
-	const StepComponent = trainsList[selectedStep].component;
-	// Example usage:
-	// GlobalEventHandler.register('some-id', (payload) => { ... });
+	// Helper to extract and render the right-side step component from GuidedWizard
+	function getStepComponent(selectedStep: number, setSelectedStep: (idx: number) => void) {
+		const step = steps[selectedStep];
+		return step.component({ selectedStep, setSelectedStep, indexName, setIndexName });
+	}
+
 	return (
 		<div className="flex flex-col md:flex-row min-h-screen" style={{ position: 'relative' }}>
 			{/* Left Column */}
@@ -64,7 +68,7 @@ function App() {
 				className="bg-white p-6"
 				style={{ width: `calc(100% - ${leftWidth}% - 8px)`, minWidth: '30%', maxWidth: '70%' }}
 			>
-				<StepComponent selectedStep={selectedStep} setSelectedStep={setSelectedStep} />
+				{getStepComponent(selectedStep, setSelectedStep)}
 			</div>
 		</div>
 	);

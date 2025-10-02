@@ -1,0 +1,41 @@
+.index-details-icon {
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  background-image: url('../assets/download.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+  filter: grayscale(100%);
+}
+.index-details-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.index-details-input {
+  background-color: #f0f0f0;
+  color: #888;
+  border: 1px solid #B7B7B7;
+  border-radius: 4px;
+  padding: 4px 8px;
+  min-width: 120px;
+}
+
+.index-details-btn {
+  background: #e0e0e0;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.index-details-btn img {
+  width: 20px;
+  height: 20px;
+  filter: grayscale(100%);
+}

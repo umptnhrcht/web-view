@@ -1,5 +1,5 @@
-// embeddingService.ts
-// Dummy implementation for local development. Replace with actual API integration for production.
+const EMBED_SERVICE_URL = "http://localhost:5100/embed"
+
 
 /**
  * Creates a vector embedding for the given text using the specified model.
@@ -8,8 +8,23 @@
  * @returns Promise<number[]> The embedding vector
  */
 export async function createEmbedding(text: string, model: string): Promise<number[]> {
-  // Simulate an embedding with random numbers for local testing
-  // Replace this with a call to an actual embedding API/service
-  const dimension = 384; // all-MiniLM-L6-v2 output size
-  return Array.from({ length: dimension }, () => Math.random());
+
+	const payload = { text }
+
+	const request = new Request(EMBED_SERVICE_URL, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			'Accept': 'application/json'
+		},
+		body: JSON.stringify(payload)
+	})
+
+	const res = await fetch(request);
+	if (res.ok) {
+		const json = await res.json() as {embedding: number[]};
+		return json.embedding;
+	}
+
+	throw Error("failed to gather embeddings.");
 }

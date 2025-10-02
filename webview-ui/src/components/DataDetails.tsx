@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 export interface DataDetailsProps extends ConnectionFormProps {
 	indexName: string;
@@ -8,12 +8,39 @@ import "../css/DataDetails.css";
 import { INDEX_DATA, INFER_DATA, JSON_HEADERS } from "../constants/constants";
 import { completeStepAndNext, type ConnectionFormProps } from "./GuidedWizard";
 
-const DataDetails: React.FC<DataDetailsProps> = ({ selectedStep, setSelectedStep }) => {
+const DataDetails: React.FC<DataDetailsProps> = ({ selectedStep, setSelectedStep, indexName, setIndexName }) => {
 	const [dataStatus, setDataStatus] = React.useState<string>('');
 	const [pattern, setPattern] = React.useState<string>('');
 	const [columns, setColumns] = React.useState<Array<{ column: string, types: string[] }>>([]);
 	const [vectorizeState, setVectorizeState] = React.useState<Record<string, boolean>>({});
 	const [indexState, setIndexState] = React.useState<Record<string, boolean>>({});
+	const [isLoadIndexDisabled, setIsLoadIndexDisabled] = React.useState<boolean>(false);
+	// const [isVectorizeDisabled, setIsVectorizeDisabled] = React.useState<boolean>(false);
+
+	useEffect(() => {
+		const formDisabled = indexName.trim().length == 0 || (dataStatus === 'available' && columns.length === 0) || dataStatus === '';
+
+		const vectorizeSelected = Object.entries(vectorizeState).reduce((acc, curr) => {
+			return acc || curr[1];
+		}, false);
+		const indexingSelected = Object.entries(indexState).reduce((acc, curr) => {
+			return acc || curr[1];
+		}, false);
+
+		const disabled = formDisabled || (!vectorizeSelected && !indexingSelected);
+
+		console.log(formDisabled, vectorizeSelected, indexingSelected);
+
+		setIsLoadIndexDisabled(disabled);
+	}, [dataStatus, columns, indexName, indexState, vectorizeState]);
+
+
+	useEffect(() => {
+		if (columns.length === 0) {
+			setVectorizeState({});
+			setIndexState({});
+		}
+	}, [columns]);
 
 	const handleInferData = async () => {
 
@@ -48,7 +75,16 @@ const DataDetails: React.FC<DataDetailsProps> = ({ selectedStep, setSelectedStep
 		}
 	};
 
+	const indexNameRef = React.useRef<HTMLInputElement>(null);
+
 	const handleVectorizeSubmit = async () => {
+		if (!indexName.trim()) {
+			if (indexNameRef.current) {
+				indexNameRef.current.focus();
+			}
+			return;
+		}
+
 		const vectorizeCols = Object.entries(vectorizeState)
 			.filter(([_, v]) => v)
 			.map(([col]) => col);
@@ -62,8 +98,8 @@ const DataDetails: React.FC<DataDetailsProps> = ({ selectedStep, setSelectedStep
 				indexable: indexCols
 			},
 			keyPrefix: pattern,
-			indexName: "hello"
-		}
+			indexName
+		};
 
 		const request = new Request(INDEX_DATA, {
 			method: 'POST',
@@ -75,38 +111,64 @@ const DataDetails: React.FC<DataDetailsProps> = ({ selectedStep, setSelectedStep
 		if (res.ok) {
 			const json = await res.json();
 			console.log(json);
-			completeStepAndNext(selectedStep, setSelectedStep);
+			moveIntoNext();
 		} else {
 			console.log('fail');
 		}
 	};
 
+	const clearColumns = async () => {
+		setColumns([]);
+	}
+
+	const moveIntoNext = async () => {
+
+		if (dataStatus === 'available')
+			await handleVectorizeSubmit();
+
+		completeStepAndNext(selectedStep, setSelectedStep);
+	}
+
 	return (
 		<div>
-			<div className="data-details-row">
-				<label className="data-details-label">Data status:</label>
-				<label style={{ marginRight: 16 }}>
+			<div>
+				<div className="data-details-row">
+					<label className="data-details-label">Data status:</label>
+					<label style={{ marginRight: 16 }}>
+						<input
+							type="radio"
+							name="dataStatus"
+							value="available"
+							checked={dataStatus === 'available'}
+							onChange={() => setDataStatus('available')}
+							style={{ marginRight: 6 }}
+						/>
+						Data already available in redis
+					</label>
+					<label>
+						<input
+							type="radio"
+							name="dataStatus"
+							value="index"
+							checked={dataStatus === 'index'}
+							onChange={() => setDataStatus('index')}
+							style={{ marginRight: 6 }}
+						/>
+						Index already available
+					</label>
+				</div>
+				<div className="data-details-row">
+					<label htmlFor="index-name" className="data-details-label">Index name:</label>
 					<input
-						type="radio"
-						name="dataStatus"
-						value="available"
-						checked={dataStatus === 'available'}
-						onChange={() => setDataStatus('available')}
-						style={{ marginRight: 6 }}
+						id="index-name"
+						type="text"
+						value={indexName}
+						required
+						onChange={e => setIndexName(e.target.value)}
+						className="key-types-input"
+						ref={indexNameRef}
 					/>
-					Data already available in redis
-				</label>
-				<label>
-					<input
-						type="radio"
-						name="dataStatus"
-						value="index"
-						checked={dataStatus === 'index'}
-						onChange={() => setDataStatus('index')}
-						style={{ marginRight: 6 }}
-					/>
-					Index already available
-				</label>
+				</div>
 			</div>
 			{dataStatus === 'available' && (
 				<div>
@@ -134,9 +196,12 @@ const DataDetails: React.FC<DataDetailsProps> = ({ selectedStep, setSelectedStep
 							<div className="data-details-columns">
 								<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 									<h4>Inferred Columns</h4>
-									<button type="button" className="outlined-action-btn" onClick={handleVectorizeSubmit}>
-										Vectorize &amp; Create Index
-									</button>
+									<div>
+										<button type="button" className="outlined-action-btn" onClick={clearColumns}>
+											Clear columns
+										</button>
+									</div>
+
 								</div>
 								<table className="data-details-table">
 									<thead>
@@ -179,6 +244,26 @@ const DataDetails: React.FC<DataDetailsProps> = ({ selectedStep, setSelectedStep
 				</div>
 			)}
 
+			<button
+				type="submit"
+				onClick={moveIntoNext}
+				disabled={isLoadIndexDisabled}
+				style={{
+					padding: "0.4rem 1.1rem",
+					borderRadius: 20,
+					background: "#2563eb",
+					color: "#fff",
+					fontWeight: 600,
+					border: "none",
+					cursor: isLoadIndexDisabled ? "not-allowed" : "pointer",
+					fontSize: "0.95rem",
+					boxShadow: "0 1px 4px rgba(37,99,235,0.10)",
+					transition: "background 0.2s",
+					opacity: isLoadIndexDisabled ? 0.6 : 1
+				}}
+			>
+				{dataStatus === 'available' ? 'Vectorize & Load index' : 'Load index'}
+			</button>
 		</div>
 	);
 };

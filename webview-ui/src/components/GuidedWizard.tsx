@@ -72,7 +72,13 @@ export const GuidedWizard: React.FC<GuidedWizardProps> = ({ selectedStep, onStep
 
 
 export function completeStepAndNext(selectedStep: number, onStepSelect: (idx: number) => void) {
-	if (selectedStep + 1 < 3) {
-		onStepSelect(selectedStep + 1);
+	if (selectedStep < steps.length) {
+		// Mark current step as finished
+		steps[selectedStep].status = TrainStatus.Finished;
+		// Mark next step as in progress if exists
+		if (selectedStep + 1 < steps.length) {
+			steps[selectedStep + 1].status = TrainStatus.InProgress;
+			onStepSelect(selectedStep + 1);
+		}
 	}
 }

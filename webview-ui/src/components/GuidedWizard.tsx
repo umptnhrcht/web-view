@@ -10,7 +10,7 @@ const trains = [
 	{ name: "Connection details", progress: 10, status: TrainStatus.InProgress, component: ConnectionForm },
 	{ name: "Data details", progress: 60, status: TrainStatus.Unvisited, component: DataDetails },
 	{ name: "Index details", progress: 100, status: TrainStatus.Unvisited, component: IndexDetails },
-	{ name: "Query settings", progress: 100, status: TrainStatus.Finished, component: QuerySettings }
+	{ name: "Query settings", progress: 100, status: TrainStatus.Unvisited, component: QuerySettings }
 ];
 
 

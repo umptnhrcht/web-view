@@ -105,7 +105,8 @@ export class HelloWorldPanel {
 		const scriptUri = getUri(webview, extensionUri, ["webview-ui", "build", "assets", "index.js"]);
 
 		const nonce = getNonce();
-		console.log(webview.cspSource) 
+		console.log("img-src: 'self' ${resourcesUri};")
+
 
 		// Tip: Install the es6-string-html VS Code extension to enable code highlighting below
 		return /*html*/ `
@@ -114,7 +115,7 @@ export class HelloWorldPanel {
         <head>
           <meta charset="UTF-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
+		  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}'; img-src ${webview.cspSource};">
           <link rel="stylesheet" type="text/css" href="${stylesUri}">
           <title>Hello World</title>
         </head>
@@ -151,7 +152,7 @@ export class HelloWorldPanel {
 						console.log(status);
 						window.showInformationMessage('Connection form submitted!');
 						// You can handle the form data here (e.g., connect to a server)
-						webview.postMessage({id, status});
+						webview.postMessage({ id, status });
 						return status;
 					// Add more switch case statements here as more webview message commands
 				}

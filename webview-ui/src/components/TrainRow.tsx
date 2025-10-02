@@ -1,8 +1,8 @@
 import React from "react";
 import "../css/TrainRow.css";
 import ProgressRingWithStyle from "./ProgressRing";
-import successIcon from "../assets/success.svg";
-import warningIcon from "../assets/warning.svg";
+// Use static public asset URLs for CSP compliance
+
 // You can replace the SVG below with any icon you prefer
 const TrainIcon = () => (
 	<svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -29,13 +29,9 @@ interface TrainRowProps {
 	onClick?: () => void;
 }
 
-const WarningIcon = () => (
-	<img src={warningIcon} alt="Warning" className="warning-icon" />
-);
-
-const SuccessIcon = () => (
-	<img src={successIcon} alt="Success" className="success-icon" />
-);
+const WarningIconBg = () => <span className="warning-icon-bg" title="Warning" />;
+const SuccessIconBg = () => <span className="success-icon-bg" title="Success" />;
+const NeutralIconBg = () => <span className="neutral-icon-bg" title="Unvisited" />;
 
 const TrainRow: React.FC<TrainRowProps> = ({status = TrainStatus.Uninitialized, stepLabel, style, onClick}) => {
 	const isClickable = status !== TrainStatus.Uninitialized && status !== TrainStatus.Unvisited;
@@ -54,10 +50,10 @@ const TrainRow: React.FC<TrainRowProps> = ({status = TrainStatus.Uninitialized, 
 				<span className="train-row-label">{stepLabel}</span>
 			</div>
 			{/* Status indicator */}
-			{status === TrainStatus.Unvisited && null}
-			{status === TrainStatus.Uninitialized && <WarningIcon />}
+			{status === TrainStatus.Unvisited && <NeutralIconBg />}
+			{status === TrainStatus.Uninitialized && <WarningIconBg />}
 			{status === TrainStatus.InProgress && <ProgressRingWithStyle/>}
-			{status === TrainStatus.Finished && <SuccessIcon />}
+			{status === TrainStatus.Finished && <SuccessIconBg />}
 		</div>
 	);
 };

@@ -1,3 +1,5 @@
+# Ignore build output
+build/
 # Logs
 logs
 *.log

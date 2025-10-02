@@ -1,6 +1,7 @@
 import { Disposable, Webview, WebviewPanel, window, Uri, ViewColumn } from "vscode";
 import { getUri, getNonce } from "../utilities";
 import { RedisConnector } from "../redis/connection";
+import { InfetDataType } from "../redis/inferdatatype";
 
 /**
  * This class manages the state and behavior of HelloWorld webview panels.
@@ -145,7 +146,7 @@ export class HelloWorldPanel {
 					case "hello":
 						console.log('hello');
 						window.showInformationMessage(text);
-						return;
+						break;
 					case "submitConnectionForm":
 						console.log('Received connection form data11:', message.data);
 						const status = (await RedisConnector.create(message.data)).ping()
@@ -153,8 +154,21 @@ export class HelloWorldPanel {
 						window.showInformationMessage('Connection form submitted!');
 						// You can handle the form data here (e.g., connect to a server)
 						webview.postMessage({ id, status });
-						return status;
+						break;
+					case "inferData": 
+						try {
+							// You may want to pass a pattern from the message, e.g. message.pattern
+							const pattern = message.data.pattern || '*';
+							const keys = await InfetDataType.infer(pattern);
+							webview.postMessage({ id, keys });
+						} catch (err) {
+							webview.postMessage({ id, error: String(err) });
+						}
+						break;
 					// Add more switch case statements here as more webview message commands
+					case "vectorize":
+						const data = message.data;
+
 				}
 			},
 			undefined,

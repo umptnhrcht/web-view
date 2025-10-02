@@ -12,6 +12,8 @@ export interface RedisConnectorParams {
 }
 
 export abstract class RedisConnector {
+	private static _lastConnection: RedisConnector | null = null;
+
 	public static async create(params: RedisConnectorParams): Promise<RedisConnector> {
 		let connector: RedisConnector;
 		switch (params.mode) {
@@ -30,8 +32,21 @@ export abstract class RedisConnector {
 				throw new Error('Invalid connection mode');
 		}
 		await connector.connect();
+		RedisConnector._lastConnection = connector;
 		return connector;
 	}
+
+		public getClient(): RedisClientType | null {
+			return this.client;
+		}
+	public static get lastConnection(): RedisConnector | null {
+		return RedisConnector._lastConnection;
+	}
+
+	public static hasLastConnection(): boolean {
+		return RedisConnector._lastConnection !== null;
+	}
+
 	protected client: RedisClientType | null = null;
 	abstract connect(): Promise<void>;
 	async ping(): Promise<boolean> {

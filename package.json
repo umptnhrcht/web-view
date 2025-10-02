@@ -1,47 +1,51 @@
 {
-  "name": "web-view",
-  "displayName": "web-view",
-  "description": "",
-  "version": "0.0.1",
-  "engines": {
-    "vscode": "^1.104.0"
-  },
-  "categories": [
-    "Other"
-  ],
-  "activationEvents": [],
-  "main": "./out/extension.js",
-  "contributes": {
-    "commands": [
-      {
-        "command": "web-view.helloWorld",
-        "title": "Hello World"
-      }
-    ]
-  },
-  "scripts": {
-    "install:all": "npm install && cd webview-ui && npm install",
-    "dev:webview": "cd webview-ui && npm run dev",
-    "build:webview": "cd webview-ui && npm run build",
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src",
-    "test": "vscode-test"
-  },
-  "devDependencies": {
-    "@types/mocha": "^10.0.10",
-    "@types/node": "22.x",
-    "@types/vscode": "^1.104.0",
-    "@typescript-eslint/eslint-plugin": "^8.42.0",
-    "@typescript-eslint/parser": "^8.42.0",
-    "@vscode/test-cli": "^0.0.11",
-    "@vscode/test-electron": "^2.5.2",
-    "eslint": "^9.34.0",
-    "typescript": "^5.9.2"
-  },
-  "dependencies": {
-    "redis-om": "^0.4.7"
-  }
+	"name": "web-view",
+	"displayName": "web-view",
+	"description": "",
+	"version": "0.0.1",
+	"engines": {
+		"vscode": "^1.104.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [],
+	"main": "./out/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "web-view.helloWorld",
+				"title": "Hello World"
+			}
+		]
+	},
+	"scripts": {
+		"install:all": "npm install && cd webview-ui && npm install",
+		"dev:webview": "cd webview-ui && npm run dev",
+		"build:webview": "cd webview-ui && npm run build",
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"pretest": "npm run compile && npm run lint",
+		"lint": "eslint src",
+		"test": "vscode-test",
+		"py:setup-venv": "node scripts/ensure-env.mjs",
+		"py:freeze-venv": "node scripts/freeze-env.mjs",
+		"py:clear-venv": "node scripts/delete-venv.mjs",
+		"run-flask": "node scripts/run-flask.mjs"
+	},
+	"devDependencies": {
+		"@types/mocha": "^10.0.10",
+		"@types/node": "22.x",
+		"@types/vscode": "^1.104.0",
+		"@typescript-eslint/eslint-plugin": "^8.42.0",
+		"@typescript-eslint/parser": "^8.42.0",
+		"@vscode/test-cli": "^0.0.11",
+		"@vscode/test-electron": "^2.5.2",
+		"eslint": "^9.34.0",
+		"typescript": "^5.9.2"
+	},
+	"dependencies": {
+		"redis-om": "^0.4.7"
+	}
 }

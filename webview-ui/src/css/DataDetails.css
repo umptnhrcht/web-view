@@ -43,3 +43,100 @@
     background: linear-gradient(90deg, #757575 0%, #bdbdbd 100%);
     box-shadow: 0 4px 16px rgba(189, 189, 189, 0.18);
 }
+
+.outlined-action-btn {
+  border: 2px solid #0078d4;
+  background: #fff;
+  color: #0078d4;
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 0.5rem 1.4rem;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  margin-left: 1rem;
+}
+.outlined-action-btn:hover, .outlined-action-btn:focus {
+  background: #e3f2fd;
+  color: #005fa3;
+  border-color: #005fa3;
+}
+
+.data-details-divider {
+  border: none;
+  border-top: 2px solid #bdbdbd;
+  margin: 2rem 0 1.5rem 0;
+  width: 100%;
+}
+
+.data-details-columns {
+  background: #fafbfc;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(189, 189, 189, 0.12);
+  padding: 2rem 1.5rem 1.5rem 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.data-details-columns h4 {
+  margin-top: 0;
+  margin-bottom: 1.2rem;
+  font-size: 1.2rem;
+  color: #444;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.data-details-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  table-layout: fixed;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.data-details-table th,
+.data-details-table td {
+  border-right: 1px solid #bdbdbd;
+  min-width: 25%;
+  overflow: auto;
+  resize: horizontal;
+  /* Hide native resize icon for Webkit browsers */
+  &::-webkit-resizer {
+    display: none;
+  }
+}
+
+.data-details-table th:last-child,
+.data-details-table td:last-child {
+  border-right: none;
+}
+
+.data-details-table th.table-header {
+  background: #e0e0e0;
+  color: #333;
+  font-weight: 600;
+  padding: 0.7rem 1rem;
+  border-bottom: 2px solid #bdbdbd;
+  font-size: 1rem;
+}
+
+.data-details-table td.table-cell-accent {
+  background: #f5f5f5;
+  color: #444;
+  font-weight: 500;
+  padding: 0.7rem 1rem;
+  font-size: 0.98rem;
+}
+
+.data-details-table td {
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid #eee;
+  font-size: 0.98rem;
+}
+
+.data-details-table input[type="checkbox"] {
+  transform: scale(1.2);
+  margin: 0 0.5rem;
+}

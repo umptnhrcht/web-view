@@ -49,6 +49,16 @@ interface GuidedWizardProps {
 export const GuidedWizard: React.FC<GuidedWizardProps> = ({ selectedStep, onStepSelect }) => {
 	// const [indexName, setIndexName] = React.useState("hello");
 
+	const handleStepClick = (idx: number) => {
+		if (idx <= selectedStep) {
+			// Set all steps after idx to Unvisited
+			for (let i = idx + 1; i < steps.length; i++) {
+				steps[i].status = TrainStatus.Unvisited;
+			}
+			onStepSelect(idx);
+		}
+	};
+
 	return (
 		<div className="bg-white rounded-lg shadow p-6 w-full">
 			<div className="flex">
@@ -61,7 +71,8 @@ export const GuidedWizard: React.FC<GuidedWizardProps> = ({ selectedStep, onStep
 							status={train.status}
 							stepLabel={train.name}
 							style={idx === selectedStep ? { border: '2px solid #2563eb', background: '#e0e7ff' } : {}}
-							onClick={() => onStepSelect(idx)}
+							disabled={idx > selectedStep}
+							onClick={() => handleStepClick(idx)}
 						/>
 					))}
 				</div>

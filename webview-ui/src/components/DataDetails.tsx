@@ -18,18 +18,22 @@ const DataDetails: React.FC<DataDetailsProps> = ({ selectedStep, setSelectedStep
 	// const [isVectorizeDisabled, setIsVectorizeDisabled] = React.useState<boolean>(false);
 
 	useEffect(() => {
-		const formDisabled = indexName.trim().length == 0 || (dataStatus === 'available' && columns.length === 0) || dataStatus === '';
 
-		const vectorizeSelected = Object.entries(vectorizeState).reduce((acc, curr) => {
-			return acc || curr[1];
-		}, false);
-		const indexingSelected = Object.entries(indexState).reduce((acc, curr) => {
-			return acc || curr[1];
-		}, false);
+		const isIndexNameEmpty = indexName.trim().length === 0;
+		const isDataStatusEmpty = dataStatus === "";
 
-		const disabled = formDisabled || (!vectorizeSelected && !indexingSelected);
+		const vectorizeSelected = Object.values(vectorizeState).some(Boolean);
+		const indexingSelected = Object.values(indexState).some(Boolean);
 
-		console.log(formDisabled, vectorizeSelected, indexingSelected);
+		// disabled if:
+		// 1. indexName is empty, OR
+		// 2. dataStatus is empty, OR
+		// 3. if dataStatus is 'available' AND (columns.length === 0 OR both selections false)
+		const disabled =
+			isIndexNameEmpty ||
+			isDataStatusEmpty ||
+			(dataStatus === "available" &&
+				(columns.length === 0 || (!vectorizeSelected && !indexingSelected)));
 
 		setIsLoadIndexDisabled(disabled);
 	}, [dataStatus, columns, indexName, indexState, vectorizeState]);
@@ -111,7 +115,6 @@ const DataDetails: React.FC<DataDetailsProps> = ({ selectedStep, setSelectedStep
 		if (res.ok) {
 			const json = await res.json();
 			console.log(json);
-			moveIntoNext();
 		} else {
 			console.log('fail');
 		}

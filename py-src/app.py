@@ -1,3 +1,6 @@
+from redisadapter.query_adapter import QueryAdapter
+
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from data import Embedder
@@ -22,7 +25,7 @@ def redis_infer():
         result = RedisDataInferer.infer(pattern)
         return jsonify({"columns": result})
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": str(e)}), 400
 
 
 @app.route("/redis/index", methods=["POST"])
@@ -35,7 +38,7 @@ def redis_index():
         result = RedisDataVectorizer.orchestrate(columns, index_name, key_prefix)
         return jsonify(result)
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": str(e)}), 400
 
 
 @app.route("/redis/index/<index_name>", methods=["GET"])
@@ -44,7 +47,25 @@ def get_index_details(index_name):
         result = RedisDataVectorizer.get_index_details(index_name)
         return jsonify(result)
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": str(e)}), 400
+
+
+# Semantic KNN search API
+@app.route("/redis/search", methods=["POST"])
+def redis_search():
+    try:
+        data = request.get_json() or {}
+        index_name = data.get("indexName")
+        query = data.get("query")
+        vector_fields = data.get("vector_fields", [])
+        k = int(data.get("k", 5))
+        if not index_name or not query or not vector_fields:
+            return jsonify({"error": "Missing required parameters"}), 400
+        results = QueryAdapter.multi_knn_search(index_name, query, vector_fields, k)
+        # Optionally, serialize results if needed
+        return jsonify({"results": results})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 
 @app.route("/redis/ping", methods=["POST"])
@@ -61,7 +82,7 @@ def redis_ping():
         result = conn.ping()
         return jsonify({"status": "ok" if result else "fail"})
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": str(e)}), 400
 
 
 @app.route("/embed", methods=["POST"])

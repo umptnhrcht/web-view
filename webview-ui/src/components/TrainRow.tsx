@@ -27,14 +27,15 @@ interface TrainRowProps {
 	stepLabel?: string;
 	style?: React.CSSProperties;
 	onClick?: () => void;
+	disabled?: boolean;
 }
 
 const WarningIconBg = () => <span className="warning-icon-bg" title="Warning" />;
 const SuccessIconBg = () => <span className="success-icon-bg" title="Success" />;
 const NeutralIconBg = () => <span className="neutral-icon-bg" title="Unvisited" />;
 
-const TrainRow: React.FC<TrainRowProps> = ({status = TrainStatus.Uninitialized, stepLabel, style, onClick}) => {
-	const isClickable = status !== TrainStatus.Uninitialized && status !== TrainStatus.Unvisited;
+const TrainRow: React.FC<TrainRowProps> = ({status = TrainStatus.Uninitialized, stepLabel, style, onClick, disabled = false}) => {
+	const isClickable = !disabled && status !== TrainStatus.Uninitialized && status !== TrainStatus.Unvisited;
 	const rowClass = `train-row${isClickable ? ' clickable' : ' disabled'}`;
 	return (
 		<div
@@ -43,7 +44,7 @@ const TrainRow: React.FC<TrainRowProps> = ({status = TrainStatus.Uninitialized, 
 			onClick={isClickable ? onClick : undefined}
 			tabIndex={isClickable ? 0 : -1}
 			role={isClickable ? 'button' : undefined}
-			aria-disabled={!isClickable}
+			aria-disabled={disabled || !isClickable}
 		>
 			<div className="train-row-label-container">
 				<TrainIcon />

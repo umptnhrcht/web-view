@@ -18,7 +18,7 @@ export const ConnectionForm: React.FC<ConnectionFormProps> = ({ onSubmit, select
 	const [port, setPort] = useState("");
 	const [user, setUser] = useState("");
 	const [password, setPassword] = useState("");
-	const [connectString, setConnectString] = useState("");
+	const [connectString, setConnectString] = useState("redis://default:lQa8f11g3HSqLgJATWHIwpkIwFN2MhwE@redis-13666.crce217.ap-south-1-1.ec2.redns.redis-cloud.com:13666");
 
 	async function handleSubmit(e: React.FormEvent) {
 		e.preventDefault();

@@ -1,8 +1,10 @@
+import numpy as np
 from sentence_transformers import SentenceTransformer
 from threading import Lock
 
 
 class Embedder:
+
     _instance = None
     _lock = Lock()
 
@@ -18,6 +20,11 @@ class Embedder:
                     inst.model = SentenceTransformer("all-MiniLM-L6-v2")
                     Embedder._instance = inst
         return Embedder._instance
+
+    @staticmethod
+    def get_embedding_as_bytes(text: str) -> bytes:
+        embedding = Embedder.get_embedding(text)
+        return embedding.astype(np.float32).tobytes()
 
     @staticmethod
     def get_embedding(text: str):

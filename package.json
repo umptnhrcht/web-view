@@ -16,6 +16,11 @@
 			{
 				"command": "web-view.helloWorld",
 				"title": "Hello World"
+			},
+			{
+				"command": "web-view.saveFile",
+				"title": "Save file"
+
 			}
 		]
 	},

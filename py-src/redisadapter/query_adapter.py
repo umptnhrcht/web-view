@@ -10,7 +10,11 @@ from redis.commands.search.query import Query
 class QueryAdapter:
     @staticmethod
     def knn_search(
-        index_name: str, query_text: str, vector_field: str, data_field: str, results_per_field: int = 5
+        index_name: str,
+        query_text: str,
+        vector_field: str,
+        data_field: list[str],
+        results_per_field: int = 5,
     ) -> List[Any]:
         """
         Performs a KNN search on the given index using the provided query text.
@@ -33,7 +37,7 @@ class QueryAdapter:
             Query(f"*=>[KNN {results_per_field} @{vector_field} $vec AS score]")
             .sort_by("score")
             .paging(0, results_per_field)
-            .return_fields(data_field, "score")
+            .return_fields(*data_field, "score")
             .dialect(3)
         )
 
@@ -41,12 +45,12 @@ class QueryAdapter:
         print(results)
         return results
 
-
     @staticmethod
     def multi_knn_search(
         index_name: str,
         query_text: str,
-        vector_fields: list,
+        vector_fields: list[str],
+        result_fields: list[str],
         results_per_field: int = 3,
         max_results: int = 5,
     ) -> list:
@@ -58,25 +62,77 @@ class QueryAdapter:
         counter = 0
         for field in vector_fields:
             # knn_search returns a result object, expected to have .docs attribute (list of docs)
-            field_results = QueryAdapter.knn_search(index_name, query_text, field, results_per_field)
-            docs = getattr(field_results, 'docs', field_results)  # fallback if .docs missing
+            field_results = QueryAdapter.knn_search(
+                index_name, query_text, field, result_fields, results_per_field
+            )
+            docs = getattr(
+                field_results, "docs", field_results
+            )  # fallback if .docs missing
             for doc in docs:
                 score = float(doc.score)
-                heapq.heappush(all_results, (-score, counter, doc))  # add counter as tiebreaker
+                heapq.heappush(
+                    all_results, (-score, counter, doc)
+                )  # add counter as tiebreaker
                 counter += 1
 
         # Get top max_results
-        top_results = [heapq.heappop(all_results)[2] for _ in range(min(max_results, len(all_results)))]
+        top_results = [
+            heapq.heappop(all_results)[2]
+            for _ in range(min(max_results, len(all_results)))
+        ]
         serializable_results = []
 
         for doc in top_results:
-            if hasattr(doc, 'to_dict'):
+            if hasattr(doc, "to_dict"):
                 serializable_results.append(doc.to_dict())
-            elif hasattr(doc, '__dict__'):
+            elif hasattr(doc, "__dict__"):
                 # Remove private attributes and methods
-                serializable_results.append({k: v for k, v in doc.__dict__.items() if not k.startswith('_') and not callable(v)})
+                serializable_results.append(
+                    {
+                        k: v
+                        for k, v in doc.__dict__.items()
+                        if not k.startswith("_") and not callable(v)
+                    }
+                )
             elif isinstance(doc, dict):
                 serializable_results.append(doc)
             else:
                 serializable_results.append(str(doc))
         return serializable_results
+
+    @staticmethod
+    def prepare_metadata(
+        index_name: str,
+        query_text: str,
+        vector_fields: list[str],
+        result_fields: list[str],
+        results_per_field: int = 3,
+        max_results: int = 5,
+    ) -> str:
+        result = QueryAdapter.multi_knn_search(
+            index_name,
+            query_text,
+            vector_fields,
+            result_fields,
+            results_per_field,
+            max_results,
+        )
+
+        # Prepare a metadata string for LLM context
+        # Example format: "Result N: field1=..., field2=..., ..."
+        lines = [
+            f"Semantic Search Results for query: '{query_text}' on index: '{index_name}'",
+            f"Fields included: {', '.join(result_fields)}",
+            "---",
+        ]
+        for i, doc in enumerate(result, 1):
+            if isinstance(doc, dict):
+                fields_str = ", ".join(
+                    f"{k}={v}" for k, v in doc.items() if k != "score"
+                )
+                score_str = f"score={doc.get('score', '')}"
+                lines.append(f"Result {i}: {fields_str} ({score_str})")
+            else:
+                lines.append(f"Result {i}: {doc}")
+        context = "\n".join(lines)
+        return context

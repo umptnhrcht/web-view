@@ -13,6 +13,8 @@ const IndexDetails: React.FC<IndexDetailsProps> = ({ indexName, indexData, onSuc
 
 	const [details, setDetails] = React.useState<any | null>(null);
 	const [selectedSemanticFields, setSelectedSemanticFields] = indexData.selectedSemanticFields;
+	// New state for 'Include in Result'
+	const [includeInResult, setIncludeInResult] = indexData.resultFields;
 	const [saveDisabled, setSaveDisabled] = React.useState<boolean>(true);
 	useEffect(() => {
 		// Enable save only if at least one semantic field is selected
@@ -30,20 +32,28 @@ const IndexDetails: React.FC<IndexDetailsProps> = ({ indexName, indexData, onSuc
 			// Reset selected fields when loading new details
 			if (json.fields) {
 				const initial: { [key: string]: boolean } = {};
+				const initialResult: { [key: string]: boolean } = {};
 				json.fields.forEach((field: any) => {
 					initial[field.alias] = false;
+					initialResult[field.alias] = false;
 				});
 				setSelectedSemanticFields(initial);
+				setIncludeInResult(initialResult);
 			}
 		} else {
 			setDetails(null);
 			setSelectedSemanticFields({});
+			setIncludeInResult({});
 			console.log('fail');
 		}
 	};
 
 	const handleSemanticCheckboxChange = (alias: string) => {
 		setSelectedSemanticFields({ ...selectedSemanticFields, [alias]: !selectedSemanticFields[alias] });
+	};
+
+	const handleIncludeInResultChange = (alias: string) => {
+		setIncludeInResult({ ...includeInResult, [alias]: !includeInResult[alias] });
 	};
 
 	const handleSaveConfig = () => {
@@ -97,6 +107,7 @@ const IndexDetails: React.FC<IndexDetailsProps> = ({ indexName, indexData, onSuc
 									<th style={{ textAlign: "left", padding: "8px 12px", borderBottom: "1px solid #dbeafe", fontWeight: 600, color: '#2563eb' }}>Type</th>
 									<th style={{ textAlign: "left", padding: "8px 12px", borderBottom: "1px solid #dbeafe", fontWeight: 600, color: '#2563eb' }}>Weight</th>
 									<th style={{ textAlign: "left", padding: "8px 12px", borderBottom: "1px solid #dbeafe", fontWeight: 600, color: '#2563eb' }}>Select for Semantic Search</th>
+									<th style={{ textAlign: "left", padding: "8px 12px", borderBottom: "1px solid #dbeafe", fontWeight: 600, color: '#2563eb' }}>Include in Result</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -113,6 +124,14 @@ const IndexDetails: React.FC<IndexDetailsProps> = ({ indexName, indexData, onSuc
 												onChange={() => handleSemanticCheckboxChange(field.alias)}
 												disabled={field.type !== 'VECTOR'}
 												style={{ width: 18, height: 18, accentColor: '#2563eb', cursor: field.type === 'VECTOR' ? 'pointer' : 'not-allowed' }}
+											/>
+										</td>
+										<td style={{ padding: "8px 12px", textAlign: 'center' }}>
+											<input
+												type="checkbox"
+												checked={!!includeInResult[field.alias]}
+												onChange={() => handleIncludeInResultChange(field.alias)}
+												style={{ width: 18, height: 18, accentColor: '#2563eb', cursor: 'pointer' }}
 											/>
 										</td>
 									</tr>

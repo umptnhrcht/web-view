@@ -5,6 +5,7 @@ export const INFER_DATA = PYTHON_BACKEND + 'redis/infer';
 export const INDEX_DATA = PYTHON_BACKEND + 'redis/index';
 export const GET_INDEX = PYTHON_BACKEND + 'redis/index/{name}';
 export const SEARCH_JSON = PYTHON_BACKEND + 'redis/search';
+export const SUMMARIZE = PYTHON_BACKEND + 'redis/summarize';
 
 export const JSON_HEADERS = {
 	'Content-Type': 'application/json',

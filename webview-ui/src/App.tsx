@@ -33,7 +33,8 @@ function App() {
 
 	// index state
 	const indexData: IndexFormat = {
-		selectedSemanticFields: React.useState({})
+		selectedSemanticFields: React.useState({}),
+        resultFields: React.useState({})
 	}
 	function transform<T extends { [K in keyof T]: [any, any] }>(
 		obj: T

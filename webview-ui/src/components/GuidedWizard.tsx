@@ -24,7 +24,8 @@ export interface DataFormat {
 }
 
 export interface IndexFormat {
-	selectedSemanticFields: [{ [key: string]: boolean }, React.Dispatch<{ [key: string]: boolean }>]
+	selectedSemanticFields: [{ [key: string]: boolean }, React.Dispatch<{ [key: string]: boolean }>];
+    resultFields: [{ [key: string]: boolean }, React.Dispatch<{ [key: string]: boolean }>];
 }
 
 

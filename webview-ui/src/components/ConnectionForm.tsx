@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { nanoid } from "nanoid";
+import React from "react";
 import { completeStepAndNext, type ConnectionFormProps } from "./GuidedWizard";
 import { JSON_HEADERS, PING_REDIS } from "../constants/constants";
 
@@ -12,18 +11,23 @@ interface RedisConnectiondetails {
 	connectString: string;
 }
 
-export const ConnectionForm: React.FC<ConnectionFormProps> = ({ onSubmit, selectedStep, setSelectedStep }) => {
-	const [mode, setMode] = useState<RedisConnectiondetails['mode']>('hostPort');
-	const [host, setHost] = useState("");
-	const [port, setPort] = useState("");
-	const [user, setUser] = useState("");
-	const [password, setPassword] = useState("");
-	const [connectString, setConnectString] = useState("redis://default:lQa8f11g3HSqLgJATWHIwpkIwFN2MhwE@redis-13666.crce217.ap-south-1-1.ec2.redns.redis-cloud.com:13666");
+export const ConnectionForm: React.FC<ConnectionFormProps> = ({ onSubmit, selectedStep, setSelectedStep, connection }) => {
+
+	if (!connection) throw Error('Undefined connection object.');
+
+	const [mode, setMode] = connection.mode;
+	const [host, setHost] = connection.host;
+	const [port, setPort] = connection.port;
+	const [user, setUser] = connection.user;
+	const [password, setPassword] = connection.password
+	const [connectString, setConnectString] = connection.connectString;
+
+	setConnectString('redis://default:lQa8f11g3HSqLgJATWHIwpkIwFN2MhwE@redis-13666.crce217.ap-south-1-1.ec2.redns.redis-cloud.com:13666');
 
 	async function handleSubmit(e: React.FormEvent) {
 		e.preventDefault();
-		const id = nanoid();
-		const formData: RedisConnectiondetails & { id: string } = { host, port, user, password, mode, connectString, id };
+
+		const formData: RedisConnectiondetails = { host, port, user, password, mode, connectString };
 
 		if (onSubmit) {
 			onSubmit(formData);

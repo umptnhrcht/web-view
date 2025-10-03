@@ -1,5 +1,5 @@
 import "./App.css";
-import { GuidedWizard, steps } from './components/GuidedWizard';
+import { GuidedWizard, steps, type RedisConnection } from './components/GuidedWizard';
 
 import React from "react";
 
@@ -7,7 +7,21 @@ function App() {
 	const [leftWidth, setLeftWidth] = React.useState(30); // percent
 	const dragging = React.useRef(false);
 	const [selectedStep, setSelectedStep] = React.useState(0);
-	const [indexName, setIndexName] = React.useState("");
+	const [indexName, setIndexName] = React.useState<string>('');
+
+
+	// Lift states
+	// Connection state
+	const connection: RedisConnection = {
+		host: React.useState(''),
+		port: React.useState(''),
+		connectString: React.useState(''),
+		mode: React.useState<'hostPort' | 'connectString'>('hostPort'),
+		password: React.useState(''),
+		user: React.useState('')
+	}
+
+
 
 	function handleMouseDown(_e: React.MouseEvent<HTMLDivElement>) {
 		dragging.current = true;
@@ -40,7 +54,7 @@ function App() {
 	// Helper to extract and render the right-side step component from GuidedWizard
 	function getStepComponent(selectedStep: number, setSelectedStep: (idx: number) => void) {
 		const step = steps[selectedStep];
-		return step.component({ selectedStep, setSelectedStep, indexName, setIndexName });
+		return step.component({ selectedStep, setSelectedStep, indexName, setIndexName, connection });
 	}
 
 	return (

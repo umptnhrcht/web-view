@@ -5,10 +5,22 @@ import ConnectionForm from "./ConnectionForm";
 import DataDetails from "./DataDetails";
 import IndexDetails from "./IndexDetails";
 
+
+export interface RedisConnection {
+  host: [string, React.Dispatch<React.SetStateAction<string>>];
+  port: [string, React.Dispatch<React.SetStateAction<string>>];
+  user: [string, React.Dispatch<React.SetStateAction<string>>];
+  password: [string, React.Dispatch<React.SetStateAction<string>>];
+  mode: ['hostPort' | 'connectString', React.Dispatch<React.SetStateAction<'hostPort' | 'connectString'>>];
+  connectString: [string, React.Dispatch<React.SetStateAction<string>>];
+}
+
 export interface ConnectionFormProps {
 	onSubmit?: (details: { host: string; port: string; user: string; password: string }) => void;
 	selectedStep: number;
 	setSelectedStep: (idx: number) => void;
+	connection?: RedisConnection;
+	setConnection?: (value: any) => void;
 }
 
 
@@ -18,7 +30,7 @@ export const steps = [
 		name: "Connection details",
 		progress: 10,
 		status: TrainStatus.InProgress,
-		component: (props: { selectedStep: number; setSelectedStep: (idx: number) => void }) => (
+		component: (props: ConnectionFormProps) => (
 			<ConnectionForm {...props} />
 		)
 	},

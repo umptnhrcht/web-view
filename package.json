@@ -20,9 +20,50 @@
 			{
 				"command": "web-view.saveFile",
 				"title": "Save file"
-
+			},
+			{
+				"command": "web-view.loadConfFile",
+				"title": "Load configutation"
+			},
+			{
+				"command": "web-view.refreshConfTree",
+				"title": "Refresh Config List"
 			}
-		]
+		],
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "semanticSearchContainer",
+					"title": "Semantic Search",
+					"icon": "$(search)"
+				}
+			]
+		},
+		"views": {
+			"semanticSearchContainer": [
+				{
+					"id": "semanticSearchView",
+					"name": "Semantic Search"
+				}
+			]
+		},
+		"menus": {
+			"view/item/context": [
+				{
+					"command": "web-view.loadConfFile",
+					"when": "view == semanticSearchView",
+					"group": "navigation@1"
+				}
+			],
+			"view/title": [
+				{
+					"command": "web-view.refreshConfTree",
+					"when": "view == semanticSearchView",
+					"group": "navigation@1",
+					"icon": "$(refresh)"
+				}
+			]
+		}
 	},
 	"scripts": {
 		"install:all": "npm install && cd webview-ui && npm install",

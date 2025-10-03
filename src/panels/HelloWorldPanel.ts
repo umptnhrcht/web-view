@@ -14,7 +14,11 @@ import { saveJSONFile } from "../file/fileSaver";
  */
 export class HelloWorldPanel {
 	public static currentPanel: HelloWorldPanel | undefined;
-	private readonly _panel: WebviewPanel;
+	   private readonly _panel: WebviewPanel;
+
+	   public get panel(): WebviewPanel {
+		   return this._panel;
+	   }
 	private _disposables: Disposable[] = [];
 
 	/**

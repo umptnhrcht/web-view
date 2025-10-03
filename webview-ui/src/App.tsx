@@ -48,7 +48,8 @@ function App() {
 			data: {
 				connection: transform(connection),
 				dataDetails: transform(dataDetails),
-				indexData: transform(indexData)
+				indexData: transform(indexData),
+				index: indexName
 			}
 		}
 		console.log(message);

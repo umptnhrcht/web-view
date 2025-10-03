@@ -33,6 +33,7 @@ export function activate(context: ExtensionContext) {
 			pyFilesProvider.setLoading(item.resourceUri.fsPath);
 			try {
 				const config = await ConfigurationLoader.load(item.resourceUri);
+				// Flask is already populated with all reqd data. keep sending requests now.
 				pyFilesProvider.setLoading(null);
 				vscode.window.showInformationMessage(`Loaded: ${item.resourceUri.fsPath}`);
 				// You can add your custom logic here, e.g. use config

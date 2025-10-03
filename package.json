@@ -27,7 +27,8 @@
 			},
 			{
 				"command": "web-view.refreshConfTree",
-				"title": "Refresh Config List"
+				"title": "Refresh Config List",
+				"icon": "$(refresh)"
 			}
 		],
 		"viewsContainers": {
@@ -60,7 +61,7 @@
 					"command": "web-view.refreshConfTree",
 					"when": "view == semanticSearchView",
 					"group": "navigation@1",
-					"icon": "$(refresh)"
+					"icon": "$(search)"
 				}
 			]
 		}

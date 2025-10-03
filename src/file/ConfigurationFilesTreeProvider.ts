@@ -18,7 +18,7 @@ export class PyFilesTreeProvider implements vscode.TreeDataProvider<vscode.TreeI
 		if (!workspaceFolders) return [];
 		const pyFiles: vscode.TreeItem[] = [];
 		for (const folder of workspaceFolders) {
-			const files = await vscode.workspace.findFiles(new vscode.RelativePattern(folder, `**/*.${__CONFIGURATION_EXTENSION}`));
+			const files = (await vscode.workspace.findFiles(new vscode.RelativePattern(folder, `**/*.${__CONFIGURATION_EXTENSION}`))).sort();
 			for (const file of files) {
 				const item = new vscode.TreeItem(path.basename(file.fsPath));
 				item.contextValue = "pyFile";

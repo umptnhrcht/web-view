@@ -1,5 +1,6 @@
 import { Disposable, Webview, WebviewPanel, window, Uri, ViewColumn } from "vscode";
 import { getUri, getNonce } from "../utilities";
+import { saveJSONFile } from "../file/fileSaver";
 
 /**
  * This class manages the state and behavior of HelloWorld webview panels.
@@ -145,6 +146,10 @@ export class HelloWorldPanel {
 						console.log('hello');
 						window.showInformationMessage(text);
 						break;
+					case 'saveFile':
+						console.log('saving file with json data');
+						await saveJSONFile(message.data);
+						this.dispose()
 				}
 			},
 			undefined,

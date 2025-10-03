@@ -1,6 +1,5 @@
 import { commands, ExtensionContext, window, workspace } from "vscode";
 import { HelloWorldPanel } from "./panels/HelloWorldPanel";
-import { saveFile } from './file/fileSaver';
 // import * as cp from "child_process";
 // import * as path from "path";
 
@@ -10,10 +9,8 @@ export function activate(context: ExtensionContext) {
 		HelloWorldPanel.render(context.extensionUri);
 	});
 
-	const saveFileCommand = commands.registerCommand('web-view.saveFile', saveFile);
-
 	// Add command to the extension context
-	context.subscriptions.push(showHelloWorldCommand, saveFileCommand);
+	context.subscriptions.push(showHelloWorldCommand);
 
 	// uncomment on prod
 	// Spawn Flask embedding service as a background process

@@ -7,22 +7,38 @@ import IndexDetails from "./IndexDetails";
 
 
 export interface RedisConnection {
-  host: [string, React.Dispatch<React.SetStateAction<string>>];
-  port: [string, React.Dispatch<React.SetStateAction<string>>];
-  user: [string, React.Dispatch<React.SetStateAction<string>>];
-  password: [string, React.Dispatch<React.SetStateAction<string>>];
-  mode: ['hostPort' | 'connectString', React.Dispatch<React.SetStateAction<'hostPort' | 'connectString'>>];
-  connectString: [string, React.Dispatch<React.SetStateAction<string>>];
+	host: [string, React.Dispatch<React.SetStateAction<string>>];
+	port: [string, React.Dispatch<React.SetStateAction<string>>];
+	user: [string, React.Dispatch<React.SetStateAction<string>>];
+	password: [string, React.Dispatch<React.SetStateAction<string>>];
+	mode: ['hostPort' | 'connectString', React.Dispatch<React.SetStateAction<'hostPort' | 'connectString'>>];
+	connectString: [string, React.Dispatch<React.SetStateAction<string>>];
 }
+
+export interface DataFormat {
+	dataStatus: ['available' | 'index', React.Dispatch<React.SetStateAction<'available' | 'index'>>];
+	pattern: [string, React.Dispatch<React.SetStateAction<string>>];
+	columns: [Array<{ column: string, types: string[] }>, React.Dispatch<Array<{ column: string, types: string[] }>>];
+	vectorizeState: [Record<string, boolean>, React.Dispatch<Record<string, boolean>>];
+	indexState: [Record<string, boolean>, React.Dispatch<Record<string, boolean>>]
+}
+
+export interface IndexFormat {
+	selectedSemanticFields: [{ [key: string]: boolean }, React.Dispatch<{ [key: string]: boolean }>]
+}
+
 
 export interface ConnectionFormProps {
 	onSubmit?: (details: { host: string; port: string; user: string; password: string }) => void;
 	selectedStep: number;
 	setSelectedStep: (idx: number) => void;
-	connection?: RedisConnection;
-	setConnection?: (value: any) => void;
+	connection: RedisConnection;
+	dataDetails: DataFormat;
+	indexData: IndexFormat;
+	indexName: string;
+	setIndexName: (value: any) => void;
+	onSuccess: () => void;
 }
-
 
 
 export const steps = [
@@ -38,7 +54,7 @@ export const steps = [
 		name: "Data details",
 		progress: 60,
 		status: TrainStatus.Unvisited,
-		component: (props: { selectedStep: number; setSelectedStep: (idx: number) => void; indexName: string; setIndexName: (name: string) => void }) => (
+		component: (props: Pick<ConnectionFormProps, 'selectedStep' | 'setSelectedStep' | 'indexName' | 'setIndexName' | 'dataDetails'>) => (
 			<DataDetails {...props} />
 		)
 	},
@@ -46,7 +62,7 @@ export const steps = [
 		name: "Index details",
 		progress: 100,
 		status: TrainStatus.Unvisited,
-		component: (props: { indexName: string }) => (
+		component: (props: Pick<ConnectionFormProps, 'indexName' | 'indexData' | 'onSuccess'>) => (
 			<IndexDetails {...props} />
 		)
 	},
@@ -56,7 +72,9 @@ export const steps = [
 interface GuidedWizardProps {
 	selectedStep: number;
 	onStepSelect: (idx: number) => void;
+	onSuccess: () => void;
 }
+
 
 export const GuidedWizard: React.FC<GuidedWizardProps> = ({ selectedStep, onStepSelect }) => {
 	// const [indexName, setIndexName] = React.useState("hello");

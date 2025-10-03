@@ -1,16 +1,18 @@
 import React, { useEffect } from "react";
 import "./IndexDetails.css";
 import { GET_INDEX, substitute } from "../constants/constants";
-import { vscode } from "../vscode";
+import type { ConnectionFormProps } from "./GuidedWizard";
 
-export interface IndexDetailsProps {
-	indexName: string;
+export interface IndexDetailsProps extends Pick<ConnectionFormProps, 'indexName' | 'indexData' | 'onSuccess'> {
+
 }
 
-const IndexDetails: React.FC<IndexDetailsProps> = ({ indexName }) => {
+const IndexDetails: React.FC<IndexDetailsProps> = ({ indexName, indexData, onSuccess }) => {
+
+	if (!indexData) throw Error("Uninited index data passed");
 
 	const [details, setDetails] = React.useState<any | null>(null);
-	const [selectedSemanticFields, setSelectedSemanticFields] = React.useState<{ [key: string]: boolean }>({});
+	const [selectedSemanticFields, setSelectedSemanticFields] = indexData.selectedSemanticFields;
 	const [saveDisabled, setSaveDisabled] = React.useState<boolean>(true);
 	useEffect(() => {
 		// Enable save only if at least one semantic field is selected
@@ -41,18 +43,11 @@ const IndexDetails: React.FC<IndexDetailsProps> = ({ indexName }) => {
 	};
 
 	const handleSemanticCheckboxChange = (alias: string) => {
-		setSelectedSemanticFields(prev => ({ ...prev, [alias]: !prev[alias] }));
+		setSelectedSemanticFields({ ...selectedSemanticFields, [alias]: !selectedSemanticFields[alias] });
 	};
 
 	const handleSaveConfig = () => {
-		// You can handle saving config here, e.g., send selectedSemanticFields to backend
-		const message = {
-			command: 'saveFile',
-			data: {
-				content: ""
-			}
-		}
-		vscode.postMessage(message);
+		onSuccess();
 	};
 
 	return (

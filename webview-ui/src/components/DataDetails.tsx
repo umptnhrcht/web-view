@@ -1,37 +1,34 @@
 import React, { useEffect } from "react";
 
-export interface DataDetailsProps extends ConnectionFormProps {
-	indexName: string;
-	setIndexName: (name: string) => void;
+export interface DataDetailsProps extends Pick<ConnectionFormProps, 'selectedStep' | 'setSelectedStep' | 'indexName' | 'setIndexName' | 'dataDetails'> {
 }
+
 import "../css/DataDetails.css";
 import { INDEX_DATA, INFER_DATA, JSON_HEADERS } from "../constants/constants";
 import { completeStepAndNext, type ConnectionFormProps } from "./GuidedWizard";
 
-const DataDetails: React.FC<DataDetailsProps> = ({ selectedStep, setSelectedStep, indexName, setIndexName }) => {
-	const [dataStatus, setDataStatus] = React.useState<string>('');
-	const [pattern, setPattern] = React.useState<string>('');
-	const [columns, setColumns] = React.useState<Array<{ column: string, types: string[] }>>([]);
-	const [vectorizeState, setVectorizeState] = React.useState<Record<string, boolean>>({});
-	const [indexState, setIndexState] = React.useState<Record<string, boolean>>({});
+const DataDetails: React.FC<DataDetailsProps> = ({ selectedStep, setSelectedStep, indexName, setIndexName, dataDetails }) => {
+	if (!dataDetails) throw Error('Uninitialized data details passed.');
+
+	const [dataStatus, setDataStatus] = dataDetails?.dataStatus;
+	const [pattern, setPattern] = dataDetails.pattern;
+	const [columns, setColumns] = dataDetails.columns;
+	const [vectorizeState, setVectorizeState] = dataDetails.vectorizeState;
+	const [indexState, setIndexState] = dataDetails.indexState;
 	const [isLoadIndexDisabled, setIsLoadIndexDisabled] = React.useState<boolean>(false);
-	// const [isVectorizeDisabled, setIsVectorizeDisabled] = React.useState<boolean>(false);
 
 	useEffect(() => {
 
 		const isIndexNameEmpty = indexName.trim().length === 0;
-		const isDataStatusEmpty = dataStatus === "";
 
 		const vectorizeSelected = Object.values(vectorizeState).some(Boolean);
 		const indexingSelected = Object.values(indexState).some(Boolean);
 
 		// disabled if:
 		// 1. indexName is empty, OR
-		// 2. dataStatus is empty, OR
-		// 3. if dataStatus is 'available' AND (columns.length === 0 OR both selections false)
+		// 2. if dataStatus is 'available' AND (columns.length === 0 OR both selections false)
 		const disabled =
 			isIndexNameEmpty ||
-			isDataStatusEmpty ||
 			(dataStatus === "available" &&
 				(columns.length === 0 || (!vectorizeSelected && !indexingSelected)));
 
@@ -68,14 +65,15 @@ const DataDetails: React.FC<DataDetailsProps> = ({ selectedStep, setSelectedStep
 	};
 
 	const handleVectorizeChange = (colName: string) => {
-		setVectorizeState(prev => ({ ...prev, [colName]: !prev[colName] }));
-		setIndexState(prev => ({ ...prev, [colName]: !prev[colName] ? true : prev[colName] }));
+		const toSet = !vectorizeState[colName];
+		setVectorizeState({ ...vectorizeState, [colName]: toSet });
+		setIndexState({ ...indexState, [colName]: toSet ? true : indexState[colName] });
 	};
 
 	const handleIndexChange = (colName: string) => {
 		// Only allow manual change if not vectorized
 		if (!vectorizeState[colName]) {
-			setIndexState(prev => ({ ...prev, [colName]: !prev[colName] }));
+			setIndexState(({ ...indexState, [colName]: !indexState[colName] }));
 		}
 	};
 

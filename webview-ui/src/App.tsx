@@ -1,7 +1,8 @@
 import "./App.css";
-import { GuidedWizard, steps, type RedisConnection } from './components/GuidedWizard';
+import { GuidedWizard, steps, type DataFormat, type IndexFormat, type RedisConnection } from './components/GuidedWizard';
 
 import React from "react";
+import { vscode } from "./vscode";
 
 function App() {
 	const [leftWidth, setLeftWidth] = React.useState(30); // percent
@@ -21,6 +22,38 @@ function App() {
 		user: React.useState('')
 	}
 
+	// data state
+	const dataDetails: DataFormat = {
+		dataStatus: React.useState<'available' | 'index'>('available'),
+		pattern: React.useState(''),
+		columns: React.useState<{ column: string; types: string[] }[]>([]),
+		indexState: React.useState({}),
+		vectorizeState: React.useState({})
+	}
+
+	// index state
+	const indexData: IndexFormat = {
+		selectedSemanticFields: React.useState({})
+	}
+	function transform<T extends { [K in keyof T]: [any, any] }>(
+		obj: T
+	): { [K in keyof T]: T[K][0] } {
+		return Object.fromEntries(
+			Object.entries(obj).map(([key, value]) => [key, (value as [any, any])[0]])
+		) as { [K in keyof T]: T[K][0] };
+	}
+	function prepareConfigFile() {
+		const message = {
+			command: 'saveFile',
+			data: {
+				connection: transform(connection),
+				dataDetails: transform(dataDetails),
+				indexData: transform(indexData)
+			}
+		}
+		console.log(message);
+		vscode.postMessage(message);
+	}
 
 
 	function handleMouseDown(_e: React.MouseEvent<HTMLDivElement>) {
@@ -54,7 +87,7 @@ function App() {
 	// Helper to extract and render the right-side step component from GuidedWizard
 	function getStepComponent(selectedStep: number, setSelectedStep: (idx: number) => void) {
 		const step = steps[selectedStep];
-		return step.component({ selectedStep, setSelectedStep, indexName, setIndexName, connection });
+		return step.component({ selectedStep, setSelectedStep, indexName, setIndexName, connection, dataDetails, indexData, onSuccess: prepareConfigFile });
 	}
 
 	return (
@@ -64,7 +97,7 @@ function App() {
 				className="bg-gray-100 p-6"
 				style={{ width: `${leftWidth}%`, minWidth: '30%', maxWidth: '70%' }}
 			>
-				<GuidedWizard selectedStep={selectedStep} onStepSelect={setSelectedStep} />
+				<GuidedWizard selectedStep={selectedStep} onStepSelect={setSelectedStep} onSuccess={prepareConfigFile} />
 			</div>
 			{/* Draggable Separator */}
 			<div

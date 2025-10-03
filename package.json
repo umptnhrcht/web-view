@@ -29,6 +29,10 @@
 				"command": "web-view.refreshConfTree",
 				"title": "Refresh Config List",
 				"icon": "$(refresh)"
+			},
+			{
+				"command": "web-view.search",
+				"title": "Semantic search"
 			}
 		],
 		"viewsContainers": {

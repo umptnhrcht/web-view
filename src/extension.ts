@@ -1,8 +1,9 @@
-import { commands, ExtensionContext, window, workspace } from "vscode";
+import { commands, ExtensionContext, window } from "vscode";
 import { HelloWorldPanel } from "./panels/HelloWorldPanel";
 import { PyFilesTreeProvider } from "./file/ConfigurationFilesTreeProvider";
 import { ConfigurationLoader } from "./file/ConfigurationLoader";
 import * as vscode from "vscode";
+import RedisWrapper from "./adapter/rediswrapper";
 // import * as cp from "child_process";
 // import * as path from "path";
 
@@ -26,6 +27,20 @@ export function activate(context: ExtensionContext) {
 	context.subscriptions.push(
 		window.registerTreeDataProvider("semanticSearchView", pyFilesProvider)
 	);
+
+	// Register search command
+	const searchCommand = commands.registerCommand("web-view.search", async (arg) => {
+		const query = await vscode.window.showInputBox({
+			prompt: "Enter your semantic search query",
+			placeHolder: "Type your query here...",
+			title: "Query"
+		});
+		if (query) {
+			const result = await RedisWrapper.search(query);
+			console.log(result);
+		}
+	});
+	context.subscriptions.push(searchCommand);
 
 	// Register the loadPyFile command for context menu
 	const loadPyFileCommand = commands.registerCommand("web-view.loadConfFile", async (item) => {

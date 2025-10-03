@@ -1,4 +1,4 @@
-import { GET_INDEX, JSON_HEADERS, PING_REDIS, substitute } from "../constants";
+import { GET_INDEX, JSON_HEADERS, PING_REDIS, SEARCH_JSON, substitute } from "../constants";
 
 interface IndexableObject<T = string> {
 	[key: string]: T;
@@ -9,6 +9,21 @@ function isSubset<T>(subset: T[], superset: T[]): boolean {
 }
 
 export default class RedisWrapper {
+
+	private indexName: string;
+	private embeddingFields: string[];
+	private maxResultsPerField: number = 3;
+	private maxResultsTotal: number = 5;
+
+
+	private static _instance: RedisWrapper;
+
+
+	private constructor(indexName: string, embeddingFields: string[]) {
+		this.indexName = indexName;
+		this.embeddingFields = embeddingFields;
+	}
+
 
 	private static async ping(connection: any) {
 		const request = new Request(PING_REDIS,
@@ -49,8 +64,36 @@ export default class RedisWrapper {
 			await this.ping(connectionDetails.connection)
 			const currentDetails = await this.checkIndexExists(connectionDetails.indexName);
 			this.matchFields(currentDetails, connectionDetails);
+			const indexedFields = Object.entries(connectionDetails.indexData.selectedSemanticFields as IndexableObject<boolean>).filter(_ => _[1]).map(_ => _[0]);
+			this._instance = new RedisWrapper(connectionDetails.indexName, indexedFields)
 		} catch (error) {
 			throw new Error("setup failed..." + error);
+		}
+
+	}
+
+	public static async search(query: string) {
+
+		const url = new URL(SEARCH_JSON);
+		const payload = {
+			query,
+			indexName: this._instance.indexName,
+			vector_fields: this._instance.embeddingFields
+		}
+
+		const request = new Request(url, {
+			method: 'POST',
+			headers: JSON_HEADERS,
+			body: JSON.stringify(payload)
+		});
+
+
+		const res = await fetch(request);
+		if (res.ok) {
+			const json = await res.json();
+			return json;
+		} else {
+			throw Error("failed to search");
 		}
 
 	}

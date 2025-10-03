@@ -49,7 +49,7 @@ function App() {
 				connection: transform(connection),
 				dataDetails: transform(dataDetails),
 				indexData: transform(indexData),
-				index: indexName
+				indexName: indexName
 			}
 		}
 		console.log(message);
